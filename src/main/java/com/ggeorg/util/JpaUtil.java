@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class JpaUtil {
 
@@ -32,6 +33,31 @@ public class JpaUtil {
         } finally {
             entityManager.close();
         }
+    }
+
+    public <R> R executeInTransaction(Function<EntityManager, R> action) {
+        EntityManager entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
+        try {
+            LOGGER.info("Executing transaction.");
+            entityManager.getTransaction().begin();
+            R result = action.apply(entityManager);
+            entityManager.getTransaction().commit();
+            LOGGER.info("Transaction executed successfully.");
+            return result;
+        } catch (Exception e) {
+            LOGGER.error("Error executing transaction on thread: {}",
+                    Thread.currentThread().getName(), e);
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            throw new RuntimeException("Transaction failed", e);  // Re-throw!
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    public static EntityManager newEntityManager() {
+        return ENTITY_MANAGER_FACTORY.createEntityManager();
     }
 
     public static void closeFactory() {
