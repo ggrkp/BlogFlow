@@ -3,21 +3,19 @@ package com.ggeorg.util;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import jakarta.transaction.Transaction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class JpaUtil {
+public class Transactional {
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger(Transactional.class);
 
     private static final EntityManagerFactory ENTITY_MANAGER_FACTORY = Persistence.createEntityManagerFactory("blogflow");
 
-    public static void executeInTransaction(Consumer<EntityManager> action) {
+    public static void execute(Consumer<EntityManager> action) {
         EntityManager entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
         try {
             LOGGER.info("Executing transaction.");
@@ -35,7 +33,7 @@ public class JpaUtil {
         }
     }
 
-    public <R> R executeInTransaction(Function<EntityManager, R> action) {
+    public static <R> R execute(Function<EntityManager, R> action) {
         EntityManager entityManager = ENTITY_MANAGER_FACTORY.createEntityManager();
         try {
             LOGGER.info("Executing transaction.");
