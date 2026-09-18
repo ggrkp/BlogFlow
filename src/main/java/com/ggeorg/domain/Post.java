@@ -1,9 +1,7 @@
 package com.ggeorg.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,6 +11,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
+@EqualsAndHashCode(exclude = {"comments", "views", "tags"})
 public class Post {
 
     @Id
@@ -27,18 +27,20 @@ public class Post {
     private PostStatus status;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<PostView> views = new HashSet<>();
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User author;
-
+    private Author author;
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Comment> comments = new HashSet<>();
+
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "post_tag", joinColumns = {
@@ -46,31 +48,38 @@ public class Post {
     }, inverseJoinColumns = {
             @JoinColumn(name = "tag_id")
     })
+    @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
     @Version
     private Long version;
 
-    // Helper for comments (bidirectional)
-    public void addComment(Comment comment) {
+    public void addComment(Comment comment, Author author) {
         comments.add(comment);
-        comment.setPost(this);  // Maintain both sides
+        comment.setPost(this);
+        comment.setAuthor(author);
     }
 
-    public void removeComment(Comment comment) {
-        comments.remove(comment);
-        comment.setPost(null);  // Maintain both sides
-    }
-
-    // Helper for tags (if bidirectional)
     public void addTag(Tag tag) {
         tags.add(tag);
-        tag.getPosts().add(this);  // Assuming Tag has Set<Blog> blogs
+        tag.getPosts().add(this);
     }
 
     public void removeTag(Tag tag) {
         tags.remove(tag);
         tag.getPosts().remove(this);
     }
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
 
 }
