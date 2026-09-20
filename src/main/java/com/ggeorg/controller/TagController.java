@@ -2,6 +2,7 @@ package com.ggeorg.controller;
 
 import com.ggeorg.domain.Tag;
 import com.ggeorg.dto.request.tag.CreateTagDTO;
+import com.ggeorg.dto.request.tag.UpdateTagDTO;
 import com.ggeorg.dto.response.TagResponseDTO;
 import com.ggeorg.exception.ResourceNotFoundException;
 import com.ggeorg.service.TagService;
@@ -35,6 +36,26 @@ public class TagController {
     public ResponseEntity<TagResponseDTO> createTag(@Valid @RequestBody CreateTagDTO request) {
         Tag tag = tagService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDTO(tag));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<TagResponseDTO> delete(@PathVariable("id") Long id) {
+        try {
+            tagService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (ResourceNotFoundException exception) {
+            throw new EntityNotFoundException("Tag for deletion not found");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TagResponseDTO> updateTag(@PathVariable("id") Long id, @Valid @RequestBody UpdateTagDTO request) {
+        try {
+            Tag updatedTag = tagService.updateTag(id, request);
+            return ResponseEntity.ok(toResponseDTO(updatedTag));
+        } catch (ResourceNotFoundException exception) {
+            throw new EntityNotFoundException(exception.getMessage());
+        }
     }
 
     @GetMapping("/{name}")

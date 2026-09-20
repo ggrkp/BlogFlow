@@ -2,6 +2,7 @@ package com.ggeorg.service;
 
 import com.ggeorg.domain.Tag;
 import com.ggeorg.dto.request.tag.CreateTagDTO;
+import com.ggeorg.dto.request.tag.UpdateTagDTO;
 import com.ggeorg.exception.ResourceNotFoundException;
 import com.ggeorg.repository.TagRepository;
 import jakarta.validation.Valid;
@@ -33,10 +34,10 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
-    public Tag create(CreateTagDTO tagDTO) {
+    public Tag create(CreateTagDTO request) {
         Tag tag = new Tag();
-        tag.setName(tagDTO.getName());
-        tag.setDescription(tagDTO.getDescription());
+        tag.setName(request.getName());
+        tag.setDescription(request.getDescription());
         return tagRepository.save(tag);
     }
 
@@ -45,12 +46,31 @@ public class TagService {
         return tag.orElseThrow(() -> new ResourceNotFoundException("Tag with name " + name + " not found."));
     }
 
+    public Tag deleteById(Long id) {
+        Tag tag = tagRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
+        tagRepository.deleteById(id);
+        return tag;
+    }
+
     public List<Tag> getAll() {
         return tagRepository.findAll();
     }
 
     public List<Tag> searchByName(String nameQuery) {
         return tagRepository.findAllByNameContainingIgnoreCase(nameQuery);
+    }
+
+    @Transactional
+    public Tag updateTag(Long id, UpdateTagDTO request) {
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
+        if (request.getName() != null) {
+            tag.setName(request.getName());
+        }
+        if (request.getDescription() != null) {
+            tag.setDescription(request.getDescription());
+        }
+        return tagRepository.save(tag);
     }
 
     @Transactional
