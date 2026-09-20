@@ -11,6 +11,9 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name", name = "uk_tag_name")
+})
 public class Tag {
 
     @Id

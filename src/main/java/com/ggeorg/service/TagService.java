@@ -13,17 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/// / Read operations (readOnly = true)
-//getById(Long id)
-//getAll(Pageable pageable)
-//findByName(String name)
-//
-
-/// / Write operations (transactional)
-//create(CreateDTO request)
-//update(Long id, UpdateDTO request)
-//delete(Long id)
-
 @Service
 public class TagService {
 
