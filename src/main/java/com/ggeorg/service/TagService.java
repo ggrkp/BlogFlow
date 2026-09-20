@@ -51,8 +51,7 @@ public class TagService {
 
     @Transactional
     public Tag updateTag(Long id, UpdateTagDTO request) {
-        Tag tag = tagRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
+        Tag tag = tagRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
         if (request.getName() != null) {
             tag.setName(request.getName());
         }
@@ -64,8 +63,6 @@ public class TagService {
 
     @Transactional
     public List<Tag> createBulk(@Valid List<CreateTagDTO> requests) {
-        return requests.stream()
-                .map(this::create)
-                .toList();
+        return requests.stream().map(this::create).toList();
     }
 }

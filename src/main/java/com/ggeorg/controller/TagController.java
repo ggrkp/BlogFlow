@@ -40,32 +40,20 @@ public class TagController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<TagResponseDTO> delete(@PathVariable("id") Long id) {
-        try {
             tagService.deleteById(id);
             return ResponseEntity.noContent().build();
-        } catch (ResourceNotFoundException exception) {
-            throw new EntityNotFoundException("Tag for deletion not found");
-        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TagResponseDTO> updateTag(@PathVariable("id") Long id, @Valid @RequestBody UpdateTagDTO request) {
-        try {
             Tag updatedTag = tagService.updateTag(id, request);
             return ResponseEntity.ok(toResponseDTO(updatedTag));
-        } catch (ResourceNotFoundException exception) {
-            throw new EntityNotFoundException(exception.getMessage());
-        }
     }
 
     @GetMapping("/{name}")
     public ResponseEntity<TagResponseDTO> getByName(@PathVariable("name") String name) {
-        try {
             Tag tag = tagService.getByName(name);
             return ResponseEntity.ok(toResponseDTO(tag));
-        } catch (ResourceNotFoundException exception) {
-            throw new EntityNotFoundException(exception.getMessage());
-        }
     }
 
     @GetMapping("/search")
