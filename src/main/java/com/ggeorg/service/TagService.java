@@ -35,6 +35,7 @@ public class TagService {
         return tag.orElseThrow(() -> new ResourceNotFoundException("Tag with name " + name + " not found."));
     }
 
+    @Transactional
     public Tag deleteById(Long id) {
         Tag tag = tagRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
         tagRepository.deleteById(id);

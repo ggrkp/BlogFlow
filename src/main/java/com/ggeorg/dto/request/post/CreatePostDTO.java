@@ -1,7 +1,9 @@
 package com.ggeorg.dto.request.post;
 
+import com.ggeorg.domain.Author;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,4 +28,6 @@ public class CreatePostDTO {
 
     @NotEmpty(message = "At least one tag is required")
     private Set<Long> tagIds;
+
+    private Author author;
 }
