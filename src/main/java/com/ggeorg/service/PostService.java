@@ -35,7 +35,7 @@ public class PostService {
     }
 
     public Post getPostById(Long id) {
-        return postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post with id " + id + " not found"));
+        return postRepository.findPostWithTagsAndAuthor(id).orElseThrow(() -> new ResourceNotFoundException("Post with id " + id + " not found"));
     }
 
     public Post create(CreatePostDTO request) {
@@ -58,7 +58,7 @@ public class PostService {
     }
 
     public List<Post> getAllPosts() {
-        return postRepository.findAll();
+        return postRepository.findAllWithTagsAndAuthor();
     }
 
     @Transactional
