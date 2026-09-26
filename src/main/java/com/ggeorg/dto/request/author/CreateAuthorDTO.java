@@ -1,4 +1,4 @@
-package com.ggeorg.dto.request;
+package com.ggeorg.dto.request.author;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

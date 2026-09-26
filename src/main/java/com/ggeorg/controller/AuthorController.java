@@ -1,7 +1,7 @@
 package com.ggeorg.controller;
 
 import com.ggeorg.domain.Author;
-import com.ggeorg.dto.request.CreateAuthorDTO;
+import com.ggeorg.dto.request.author.CreateAuthorDTO;
 import com.ggeorg.dto.response.AuthorSummaryDTO;
 import com.ggeorg.service.AuthorService;
 import jakarta.validation.Valid;

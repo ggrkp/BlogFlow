@@ -1,7 +1,7 @@
 package com.ggeorg.service;
 
 import com.ggeorg.domain.Author;
-import com.ggeorg.dto.request.CreateAuthorDTO;
+import com.ggeorg.dto.request.author.CreateAuthorDTO;
 import com.ggeorg.repository.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
