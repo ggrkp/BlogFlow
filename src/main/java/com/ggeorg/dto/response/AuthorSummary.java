@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TagDTO {
+public class AuthorSummary {
 
     private Long id;
 
-    private String name;
+    private String username;
 
-    private String description;
+    private String email;
 
 }

@@ -2,7 +2,7 @@ package com.ggeorg.controller;
 
 import com.ggeorg.domain.Author;
 import com.ggeorg.dto.request.author.CreateAuthorDTO;
-import com.ggeorg.dto.response.AuthorSummaryDTO;
+import com.ggeorg.dto.response.AuthorSummary;
 import com.ggeorg.service.AuthorService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +22,19 @@ public class AuthorController {
     }
 
     @PostMapping
-    public ResponseEntity<AuthorSummaryDTO> createAuthor(@Valid @RequestBody CreateAuthorDTO request) {
+    public ResponseEntity<AuthorSummary> createAuthor(@Valid @RequestBody CreateAuthorDTO request) {
         Author newAuthor = authorService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(toAuthorSummaryDTO(newAuthor));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AuthorSummaryDTO> getAuthor(@PathVariable Long id) {
+    public ResponseEntity<AuthorSummary> getAuthor(@PathVariable Long id) {
         Author author = authorService.getById(id);
         return ResponseEntity.ok(toAuthorSummaryDTO(author));
     }
 
-    private AuthorSummaryDTO toAuthorSummaryDTO(Author author) {
-        return AuthorSummaryDTO.builder()
+    private AuthorSummary toAuthorSummaryDTO(Author author) {
+        return AuthorSummary.builder()
                 .id(author.getId())
                 .username(author.getUsername())
                 .email(author.getEmail())

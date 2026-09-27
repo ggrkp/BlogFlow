@@ -3,10 +3,8 @@ package com.ggeorg.controller;
 import com.ggeorg.domain.Tag;
 import com.ggeorg.dto.request.tag.CreateTagDTO;
 import com.ggeorg.dto.request.tag.UpdateTagDTO;
-import com.ggeorg.dto.response.TagResponseDTO;
-import com.ggeorg.exception.ResourceNotFoundException;
+import com.ggeorg.dto.response.TagResponse;
 import com.ggeorg.service.TagService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,50 +25,50 @@ public class TagController {
     }
 
     @GetMapping
-    public List<TagResponseDTO> getAllTags() {
+    public List<TagResponse> getAllTags() {
         List<Tag> tags = tagService.getAll();
         return tags.stream().map(this::toResponseDTO).toList();
     }
 
     @PostMapping
-    public ResponseEntity<TagResponseDTO> createTag(@Valid @RequestBody CreateTagDTO request) {
+    public ResponseEntity<TagResponse> createTag(@Valid @RequestBody CreateTagDTO request) {
         Tag tag = tagService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDTO(tag));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<TagResponseDTO> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<TagResponse> delete(@PathVariable("id") Long id) {
             tagService.deleteById(id);
             return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TagResponseDTO> updateTag(@PathVariable("id") Long id, @Valid @RequestBody UpdateTagDTO request) {
+    public ResponseEntity<TagResponse> updateTag(@PathVariable("id") Long id, @Valid @RequestBody UpdateTagDTO request) {
             Tag updatedTag = tagService.updateTag(id, request);
             return ResponseEntity.ok(toResponseDTO(updatedTag));
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<TagResponseDTO> getByName(@PathVariable("name") String name) {
+    public ResponseEntity<TagResponse> getByName(@PathVariable("name") String name) {
             Tag tag = tagService.getByName(name);
             return ResponseEntity.ok(toResponseDTO(tag));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<TagResponseDTO>> search(@RequestParam("name") String nameQuery) {
+    public ResponseEntity<List<TagResponse>> search(@RequestParam("name") String nameQuery) {
         List<Tag> tags = tagService.searchByName(nameQuery);
         return ResponseEntity.ok(tags.stream().map(this::toResponseDTO).toList());
     }
 
     @PostMapping("/bulk")
-    public ResponseEntity<List<TagResponseDTO>> createMultipleTags(@Valid @RequestBody List<CreateTagDTO> requests) {
+    public ResponseEntity<List<TagResponse>> createMultipleTags(@Valid @RequestBody List<CreateTagDTO> requests) {
         List<Tag> tags = tagService.createBulk(requests);
-        List<TagResponseDTO> response = tags.stream().map(this::toResponseDTO).toList();
+        List<TagResponse> response = tags.stream().map(this::toResponseDTO).toList();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    public TagResponseDTO toResponseDTO(Tag tag) {
-        return TagResponseDTO.builder()
+    public TagResponse toResponseDTO(Tag tag) {
+        return TagResponse.builder()
                 .id(tag.getId())
                 .name(tag.getName())
                 .description(tag.getDescription())

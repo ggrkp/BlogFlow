@@ -3,9 +3,8 @@ package com.ggeorg.controller;
 import com.ggeorg.domain.Author;
 import com.ggeorg.domain.Comment;
 import com.ggeorg.dto.request.comment.CreateCommentDTO;
-import com.ggeorg.dto.request.comment.UpdateCommentDTO;
-import com.ggeorg.dto.response.AuthorSummaryDTO;
-import com.ggeorg.dto.response.CommentResponseDTO;
+import com.ggeorg.dto.response.AuthorSummary;
+import com.ggeorg.dto.response.CommentResponse;
 import com.ggeorg.service.CommentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,7 @@ public class CommentController {
 
 
     @GetMapping
-    public ResponseEntity<Page<CommentResponseDTO>> getComments(
+    public ResponseEntity<Page<CommentResponse>> getComments(
             @PathVariable("postId") Long postId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -38,8 +37,8 @@ public class CommentController {
     }
 
     @PostMapping()
-    public ResponseEntity<CommentResponseDTO> createComment(@PathVariable("postId") Long postId,
-                                                            @Valid @RequestBody CreateCommentDTO request) {
+    public ResponseEntity<CommentResponse> createComment(@PathVariable("postId") Long postId,
+                                                         @Valid @RequestBody CreateCommentDTO request) {
         Comment newComment = commentService.createComment(postId, request);
         URI location = URI.create("/api/v1/posts/" + postId + "/comments/" + newComment.getId());
         return ResponseEntity.created(location).body(toCommentResponseDTO(newComment));
@@ -53,8 +52,8 @@ public class CommentController {
 //
 //    }
 
-    private CommentResponseDTO toCommentResponseDTO(Comment comment) {
-        return CommentResponseDTO.builder()
+    private CommentResponse toCommentResponseDTO(Comment comment) {
+        return CommentResponse.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
                 .author(toAuthorSummaryDTO(comment.getAuthor()))
@@ -64,8 +63,8 @@ public class CommentController {
                 .build();
     }
 
-    private AuthorSummaryDTO toAuthorSummaryDTO(Author author) {
-        return AuthorSummaryDTO.builder()
+    private AuthorSummary toAuthorSummaryDTO(Author author) {
+        return AuthorSummary.builder()
                 .id(author.getId())
                 .username(author.getUsername())
                 .email(author.getEmail())
