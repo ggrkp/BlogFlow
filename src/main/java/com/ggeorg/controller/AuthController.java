@@ -1,7 +1,9 @@
 package com.ggeorg.controller;
 
 import com.ggeorg.domain.Author;
-import com.ggeorg.dto.request.author.CreateAuthorDTO;
+import com.ggeorg.dto.request.author.LoginDTO;
+import com.ggeorg.dto.request.author.RegisterDTO;
+import com.ggeorg.dto.response.AuthorResponse;
 import com.ggeorg.dto.response.AuthorSummary;
 import com.ggeorg.service.AuthorService;
 import jakarta.validation.Valid;
@@ -11,26 +13,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/authors")
-public class AuthorController {
+@RequestMapping("/api/v1/auth")
+public class AuthController {
 
     private final AuthorService authorService;
 
     @Autowired
-    public AuthorController(AuthorService authorService) {
+    public AuthController(AuthorService authorService) {
         this.authorService = authorService;
     }
 
-    @PostMapping
-    public ResponseEntity<AuthorSummary> createAuthor(@Valid @RequestBody CreateAuthorDTO request) {
-        Author newAuthor = authorService.create(request);
+    @PostMapping("/register")
+    public ResponseEntity<AuthorSummary> register(@Valid @RequestBody RegisterDTO request) {
+        Author newAuthor = authorService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(toAuthorSummaryDTO(newAuthor));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AuthorSummary> getAuthor(@PathVariable Long id) {
-        Author author = authorService.getById(id);
-        return ResponseEntity.ok(toAuthorSummaryDTO(author));
+    @PostMapping("/login")
+    public ResponseEntity<AuthorResponse> login(@Valid @RequestBody LoginDTO request) {
+        AuthorResponse response = authorService.login(request);
+        return ResponseEntity.ok(response);
     }
 
     private AuthorSummary toAuthorSummaryDTO(Author author) {
