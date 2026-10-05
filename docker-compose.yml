@@ -26,6 +26,10 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    volumes:
+      - ./src:/app/src
+      - ./pom.xml:/app/pom.xml
+      - m2_cache:/root/.m2
     depends_on:
       postgres:
         condition: service_healthy
@@ -33,3 +37,4 @@ services:
 
 volumes:
   postgres_data:
+  m2_cache:

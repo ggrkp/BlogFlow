@@ -1,12 +1,9 @@
 package com.ggeorg.controller;
 
-import com.ggeorg.domain.Author;
 import com.ggeorg.domain.Post;
 import com.ggeorg.dto.request.post.CreatePostDTO;
 import com.ggeorg.dto.request.post.UpdatePostDTO;
-import com.ggeorg.dto.response.AuthorSummary;
 import com.ggeorg.dto.response.PostResponse;
-import com.ggeorg.dto.response.TagSummary;
 import com.ggeorg.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +21,6 @@ public class PostController {
 
     private final PostService postService;
 
-
     @Autowired
     public PostController(PostService postService) {
         this.postService = postService;
@@ -33,61 +29,34 @@ public class PostController {
     @PostMapping
     public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostDTO request) {
         Post newPost = postService.create(request);
+        PostResponse response = postService.getPostResponseById(newPost.getId());
         URI location = URI.create("/api/v1/posts/" + newPost.getId());
-        return ResponseEntity.created(location).body(toPostResponseDTO(newPost));
+        return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<PostResponse> getPost(@PathVariable("id") Long id) {
-        Post post = postService.getPostById(id);
-        return ResponseEntity.ok(toPostResponseDTO(post));
+        PostResponse response = postService.getPostResponseById(id);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping()
     public ResponseEntity<List<PostResponse>> getAllPosts() {
-        List<Post> posts = postService.getAllPosts();
-        return ResponseEntity.ok(posts.stream().map(this::toPostResponseDTO).toList());
+        List<PostResponse> responses = postService.getAllPostResponses();
+        return ResponseEntity.ok(responses);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PostResponse> updatePost(@PathVariable("id") Long id, @Valid @RequestBody UpdatePostDTO request) {
-        Post updatedPost = postService.updatePost(id, request);
-        return ResponseEntity.ok(toPostResponseDTO(updatedPost));
+        postService.updatePost(id, request);
+        PostResponse response = postService.getPostResponseById(id);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable("id") Long id) {
+    public ResponseEntity<PostResponse> deletePost(@PathVariable("id") Long id) {
         postService.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private PostResponse toPostResponseDTO(Post post) {
-        Author author = post.getAuthor();
-        AuthorSummary authorSummary = AuthorSummary.builder()
-                .id(author.getId())
-                .username(author.getUsername())
-                .email(author.getEmail())
-                .build();
-
-        Set<TagSummary> tagSummaries = post.getTags().stream()
-                .map(tag -> TagSummary.builder()
-                        .id(tag.getId())
-                        .name(tag.getName())
-                        .description(tag.getDescription())
-                        .build())
-                .collect(Collectors.toSet());
-
-        return PostResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .status(post.getStatus())
-                .viewCount(0)
-                .author(authorSummary)
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
-                .tags(tagSummaries)
-                .build();
     }
 
 }

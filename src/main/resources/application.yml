@@ -2,6 +2,10 @@ server:
   port: 8080
 
 spring:
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=10m
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/blogflow}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
@@ -28,3 +32,4 @@ logging:
     com.ggeorg: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.cache: DEBUG
