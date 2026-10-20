@@ -2,6 +2,7 @@ package com.ggeorg.service;
 
 import com.ggeorg.IntegrationTestBase;
 import com.ggeorg.dto.request.tag.CreateTagDTO;
+import com.ggeorg.dto.request.tag.UpdateTagDTO;
 import com.ggeorg.dto.response.TagResponse;
 import com.ggeorg.repository.TagRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,5 +85,35 @@ class TagCacheTest extends IntegrationTestBase {
         clearInvocations(tagRepository);
         tagService.getByName("Spring");
         verify(tagRepository, times(1)).findByName("Spring");
+    }
+
+    @Test
+    void updateEvictsCachedTagsAndReturnsFreshData() {
+        Long id = tagService.create(new CreateTagDTO("Spring", "Spring Framework")).getId();
+        tagService.getByName("Spring");
+        tagService.getAll();
+        assertThat(redisTemplate.hasKey("tags::Spring")).isTrue();
+        assertThat(redisTemplate.hasKey("tags::all")).isTrue();
+
+        tagService.updateTag(id, UpdateTagDTO.builder().description("Updated description").build());
+
+        assertThat(redisTemplate.hasKey("tags::Spring")).isFalse();
+        assertThat(redisTemplate.hasKey("tags::all")).isFalse();
+        assertThat(tagService.getByName("Spring").getDescription()).isEqualTo("Updated description");
+    }
+
+    @Test
+    void deleteEvictsCachedTags() {
+        Long id = tagService.create(new CreateTagDTO("Spring", "Spring Framework")).getId();
+        tagService.getByName("Spring");
+        tagService.getAll();
+        assertThat(redisTemplate.hasKey("tags::Spring")).isTrue();
+        assertThat(redisTemplate.hasKey("tags::all")).isTrue();
+
+        tagService.deleteById(id);
+
+        assertThat(redisTemplate.hasKey("tags::Spring")).isFalse();
+        assertThat(redisTemplate.hasKey("tags::all")).isFalse();
+        assertThat(tagService.getAll()).isEmpty();
     }
 }
