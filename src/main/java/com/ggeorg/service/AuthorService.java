@@ -9,8 +9,6 @@ import com.ggeorg.repository.AuthorRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,7 +44,6 @@ public class AuthorService {
                 .build();
     }
 
-    @CacheEvict(value = "authors", allEntries = true)
     public Author register(RegisterDTO registrationRequest) {
         boolean authorExistsByUsername = authorRepository.findByUsername(registrationRequest.getUsername()).isPresent();
         boolean authorExistsByMail = authorRepository.findByEmail(registrationRequest.getEmail()).isPresent();
@@ -61,7 +58,6 @@ public class AuthorService {
         return authorRepository.save(author);
     }
 
-    @Cacheable(value = "authors", key = "#id")
     public Author getUserById(Long id) {
         return authorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Author not found"));

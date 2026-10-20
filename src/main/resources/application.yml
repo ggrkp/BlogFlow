@@ -3,9 +3,13 @@ server:
 
 spring:
   cache:
-    type: caffeine
-    caffeine:
-      spec: maximumSize=500,expireAfterWrite=10m
+    type: redis
+    redis:
+      time-to-live: 600000
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/blogflow}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}

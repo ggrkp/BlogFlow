@@ -3,6 +3,7 @@ package com.ggeorg.service;
 import com.ggeorg.domain.Tag;
 import com.ggeorg.dto.request.tag.CreateTagDTO;
 import com.ggeorg.dto.request.tag.UpdateTagDTO;
+import com.ggeorg.dto.response.TagResponse;
 import com.ggeorg.exception.ResourceNotFoundException;
 import com.ggeorg.repository.TagRepository;
 import jakarta.validation.Valid;
@@ -25,40 +26,48 @@ public class TagService {
     }
 
     @CacheEvict(value = "tags", allEntries = true)
-    public Tag create(CreateTagDTO request) {
+    public TagResponse create(CreateTagDTO request) {
         Tag tag = new Tag();
         tag.setName(request.getName());
         tag.setDescription(request.getDescription());
-        return tagRepository.save(tag);
+        Tag saved = tagRepository.save(tag);
+        return toTagResponseDTO(saved);
     }
 
     @Cacheable(value = "tags", key = "#name")
-    public Tag getByName(String name) {
-        return tagRepository.findByName(name)
+    @Transactional(readOnly = true)
+    public TagResponse getByName(String name) {
+        Tag tag = tagRepository.findByName(name)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag with name " + name + " not found."));
+        return toTagResponseDTO(tag);
     }
 
     @Transactional
     @CacheEvict(value = "tags", allEntries = true)
-    public Tag deleteById(Long id) {
+    public void deleteById(Long id) {
         Tag tag = tagRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
         tagRepository.deleteById(id);
-        return tag;
     }
 
     @Cacheable(value = "tags", key = "'all'")
-    public List<Tag> getAll() {
-        return tagRepository.findAllByOrderByNameAsc();
+    @Transactional(readOnly = true)
+    public List<TagResponse> getAll() {
+        return tagRepository.findAllByOrderByNameAsc().stream()
+                .map(this::toTagResponseDTO)
+                .toList();
     }
 
     @Cacheable(value = "tags", key = "#nameQuery")
-    public List<Tag> searchByName(String nameQuery) {
-        return tagRepository.findAllByNameContainingIgnoreCase(nameQuery);
+    @Transactional(readOnly = true)
+    public List<TagResponse> searchByName(String nameQuery) {
+        return tagRepository.findAllByNameContainingIgnoreCase(nameQuery).stream()
+                .map(this::toTagResponseDTO)
+                .toList();
     }
 
     @Transactional
     @CacheEvict(value = "tags", allEntries = true)
-    public Tag updateTag(Long id, UpdateTagDTO request) {
+    public TagResponse updateTag(Long id, UpdateTagDTO request) {
         Tag tag = tagRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
         if (request.getName() != null) {
             tag.setName(request.getName());
@@ -66,12 +75,30 @@ public class TagService {
         if (request.getDescription() != null) {
             tag.setDescription(request.getDescription());
         }
-        return tagRepository.save(tag);
+        Tag updated = tagRepository.save(tag);
+        return toTagResponseDTO(updated);
     }
 
     @Transactional
     @CacheEvict(value = "tags", allEntries = true)
-    public List<Tag> createBulk(@Valid List<CreateTagDTO> requests) {
-        return requests.stream().map(this::create).toList();
+    public List<TagResponse> createBulk(@Valid List<CreateTagDTO> requests) {
+        return requests.stream()
+                .map(request -> {
+                    Tag tag = new Tag();
+                    tag.setName(request.getName());
+                    tag.setDescription(request.getDescription());
+                    Tag saved = tagRepository.save(tag);
+                    return toTagResponseDTO(saved);
+                })
+                .toList();
+    }
+
+    private TagResponse toTagResponseDTO(Tag tag) {
+        return TagResponse.builder()
+                .id(tag.getId())
+                .name(tag.getName())
+                .description(tag.getDescription())
+                .postCount(0)
+                .build();
     }
 }
