@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class CreateTagDTO {
 
     @NotBlank(message = "Tag name is required")
-    @Size(min = 3, max = 20, message = "Tag name must be between 3 and 10 characters")
+    @Size(min = 3, max = 20, message = "Tag name must be between 3 and 20 characters")
     private String name;
 
     @NotBlank(message = "Tag description is required")

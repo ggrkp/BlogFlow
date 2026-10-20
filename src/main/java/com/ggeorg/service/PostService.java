@@ -10,7 +10,7 @@ import com.ggeorg.dto.response.AuthorSummary;
 import com.ggeorg.dto.response.PostResponse;
 import com.ggeorg.dto.response.TagSummary;
 import com.ggeorg.exception.ResourceNotFoundException;
-import com.ggeorg.repository.AuthorRepository;
+import com.ggeorg.exception.UnauthorizedAccessException;
 import com.ggeorg.repository.PostRepository;
 import com.ggeorg.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,15 +30,11 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final TagRepository tagRepository;
-    private final AuthorRepository authorRepository;
-
-    private static final Long DEFAULT_AUTHOR_ID = 1L;
 
     @Autowired
-    public PostService(PostRepository postRepository, TagRepository tagRepository, AuthorRepository authorRepository) {
+    public PostService(PostRepository postRepository, TagRepository tagRepository) {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
-        this.authorRepository = authorRepository;
     }
 
     @Cacheable(value = "posts", key = "#id")
@@ -56,10 +53,7 @@ public class PostService {
     }
 
     @CacheEvict(value = "posts", allEntries = true)
-    public Post create(CreatePostDTO request) {
-        Author author = authorRepository.findById(DEFAULT_AUTHOR_ID)
-                .orElseThrow(() -> new RuntimeException("Default author not found. Please create an author first!"));
-
+    public Post create(CreatePostDTO request, Author author) {
         Post post = Post.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
@@ -77,8 +71,9 @@ public class PostService {
 
     @Transactional
     @CacheEvict(value = "posts", allEntries = true)
-    public Post updatePost(Long id, UpdatePostDTO updateRequest) {
+    public Post updatePost(Long id, UpdatePostDTO updateRequest, Author author) {
         Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post to be updated not found"));
+        assertOwner(post, author);
         String title = updateRequest.getTitle();
         String content = updateRequest.getContent();
         Set<Long> tagIds = updateRequest.getTagIds();
@@ -97,10 +92,17 @@ public class PostService {
 
     @Transactional
     @CacheEvict(value = "posts", allEntries = true)
-    public Post deleteById(Long id) {
+    public Post deleteById(Long id, Author author) {
         Post deletedPost = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post for deletion not found"));
+        assertOwner(deletedPost, author);
         postRepository.deleteById(deletedPost.getId());
         return deletedPost;
+    }
+
+    private void assertOwner(Post post, Author author) {
+        if (!Objects.equals(post.getAuthor().getId(), author.getId())) {
+            throw new UnauthorizedAccessException("You can only modify your own posts");
+        }
     }
 
     private PostResponse toPostResponseDTO(Post post) {

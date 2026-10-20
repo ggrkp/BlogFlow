@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -38,8 +39,9 @@ public class CommentController {
 
     @PostMapping()
     public ResponseEntity<CommentResponse> createComment(@PathVariable("postId") Long postId,
+                                                         @AuthenticationPrincipal Author author,
                                                          @Valid @RequestBody CreateCommentDTO request) {
-        Comment newComment = commentService.createComment(postId, request);
+        Comment newComment = commentService.createComment(postId, request, author);
         URI location = URI.create("/api/v1/posts/" + postId + "/comments/" + newComment.getId());
         return ResponseEntity.created(location).body(toCommentResponseDTO(newComment));
     }

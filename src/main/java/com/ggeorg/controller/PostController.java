@@ -1,5 +1,6 @@
 package com.ggeorg.controller;
 
+import com.ggeorg.domain.Author;
 import com.ggeorg.domain.Post;
 import com.ggeorg.dto.request.post.CreatePostDTO;
 import com.ggeorg.dto.request.post.UpdatePostDTO;
@@ -8,6 +9,7 @@ import com.ggeorg.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -27,8 +29,9 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostDTO request) {
-        Post newPost = postService.create(request);
+    public ResponseEntity<PostResponse> createPost(@AuthenticationPrincipal Author author,
+                                                   @Valid @RequestBody CreatePostDTO request) {
+        Post newPost = postService.create(request, author);
         PostResponse response = postService.getPostResponseById(newPost.getId());
         URI location = URI.create("/api/v1/posts/" + newPost.getId());
         return ResponseEntity.created(location).body(response);
@@ -47,15 +50,18 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable("id") Long id, @Valid @RequestBody UpdatePostDTO request) {
-        postService.updatePost(id, request);
+    public ResponseEntity<PostResponse> updatePost(@PathVariable("id") Long id,
+                                                   @AuthenticationPrincipal Author author,
+                                                   @Valid @RequestBody UpdatePostDTO request) {
+        postService.updatePost(id, request, author);
         PostResponse response = postService.getPostResponseById(id);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<PostResponse> deletePost(@PathVariable("id") Long id) {
-        postService.deleteById(id);
+    public ResponseEntity<PostResponse> deletePost(@PathVariable("id") Long id,
+                                                   @AuthenticationPrincipal Author author) {
+        postService.deleteById(id, author);
         return ResponseEntity.noContent().build();
     }
 

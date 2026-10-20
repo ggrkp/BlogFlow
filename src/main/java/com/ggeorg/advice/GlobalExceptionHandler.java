@@ -1,6 +1,7 @@
 package com.ggeorg.advice;
 
 import com.ggeorg.exception.ResourceNotFoundException;
+import com.ggeorg.exception.UnauthorizedAccessException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -19,6 +20,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage()));
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ProblemDetail> handleForbidden(UnauthorizedAccessException exception) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage()));
     }
 
     @ExceptionHandler(EntityExistsException.class)
