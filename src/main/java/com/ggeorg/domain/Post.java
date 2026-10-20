@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Builder
-@EqualsAndHashCode(exclude = {"comments", "views", "tags"})
+@EqualsAndHashCode(exclude = {"comments", "tags"})
 public class Post {
 
     @Id
@@ -29,10 +29,6 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     private PostStatus status;
-
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @Builder.Default
-    private Set<PostView> views = new HashSet<>();
 
     private LocalDateTime createdAt;
 

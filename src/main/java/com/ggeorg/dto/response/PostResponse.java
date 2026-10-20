@@ -27,8 +27,6 @@ public class PostResponse implements Serializable {
 
     private PostStatus status;
 
-    private int viewCount;
-
     private AuthorSummary author;
 
     private LocalDateTime createdAt;

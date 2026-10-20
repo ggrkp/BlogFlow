@@ -126,7 +126,6 @@ public class PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .status(post.getStatus())
-                .viewCount(0)
                 .author(authorSummary)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
